@@ -1,0 +1,97 @@
+namelist = {}
+variablelist = {}
+
+function isPlayer(player)
+    if player == nil or player.className ~= "Player" then
+        return false
+    else
+        return true
+    end
+end
+
+
+function doSparkles(player, show)
+    print("doSparkles 1")
+    if player.Character ~= nil then
+        print("doSparkles 2")
+        local torso = player.Character:FindFirstChild("Torso")
+        if torso ~= nil then
+            print("doSparkles 3")
+            if show then
+                print("doSparkles 4")
+                local sparkles = Instance.new("Sparkles")
+                sparkles.Color = Color3.new(math.random(1, 255), math.random(1, 255), math.random(1, 255))
+                sparkles.Parent = torso
+            else
+                local torso = player.Character:FindFirstChild("Torso")
+                if torso ~= nil then
+                    local c = torso:GetChildren()
+                    for i2 = 1, #c do
+                        if c[i2].className == "Sparkles" then
+                            c[i2]:remove()
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+function onChatted(msg, player)
+    if (msg == "sparkles") then
+        doSparkles(player, true)
+    end
+    if (msg == "unsparkles") then
+        doSparkles(player, false)
+    end
+    if msg == "day" then
+        game.Lighting:SetMinutesAfterMidnight(60 * 12)
+    end
+    if msg == "night" then
+        game.Lighting:SetMinutesAfterMidnight(0)
+    end
+    if msg == "walkfast" then
+        player.Character.Humanoid.WalkSpeed = 50
+    end
+    if msg == "walkslow" then
+        player.Character.Humanoid.WalkSpeed = 16
+    end
+    if msg == "heal" then
+        human.Health = human.MaxHealth
+    end
+    if msg == "ff" then
+        local ff = Instance.new("ForceField")
+        ff.Parent = player.Character
+    end
+    if msg == "unff" then
+        local c = player.Character:GetChildren()
+        for i2 = 1, #c do
+            if c[i2].className == "ForceField" then
+                c[i2]:remove()
+            end
+        end
+    end
+end
+
+function onChildAdded(player)
+    if not isPlayer(player) then
+        return
+    end
+
+    local connection = player.Chatted:connect(
+        function(msg)
+            onChatted(msg, player)
+        end
+    )
+    table.insert(namelist, player.Name)
+    table.insert(variablelist, connection)
+end
+
+game.Players.ChildAdded:connect(onChildAdded)
+
+wait(2)
+
+for i, player in ipairs(game.Players:GetChildren()) do
+    onChildAdded(player)
+end
+

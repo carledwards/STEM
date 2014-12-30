@@ -1,0 +1,320 @@
+adminlist = { 'ecarl42', 'Player1' }
+
+--
+-- game commands:
+--
+--   day
+--   night
+--   ambient/<red 0-255>/<green 0-255>/<blue 0-255>
+--   brightness/<0-100>
+--   timeofday/<hh:mm:ss>
+--
+-- players format:
+--
+--   <players> - me | all | <playerName>[,<playerName>[,...]]
+--
+--   sparkles/<players>
+--   unsparkles/<players>
+--   ff/<players>
+--   unff/<players>
+--   walkspeed/<players>/<speed>
+--   damage/<players>/<health>
+--   heal/<players>
+--   invisible/<players>
+--   visible/<players>
+--   trip/<players>
+--   teleport/<players>/<dest player name>
+--
+
+
+namelist = {}
+variablelist = {}
+
+function isPlayer(player)
+    if player == nil or player.className ~= "Player" then
+        return false
+    else
+        return true
+    end
+end
+
+-- splits a string by the given pattern
+function split(str, pat)
+    local t = {}
+    local fpat = "(.-)" .. pat
+    local last_end = 1
+    local s, e, cap = str:find(fpat, 1)
+    while s do
+        if s ~= 1 or cap ~= "" then
+            table.insert(t, cap)
+        end
+        last_end = e + 1
+        s, e, cap = str:find(fpat, last_end)
+    end
+    if last_end <= #str then
+        cap = str:sub(last_end)
+        table.insert(t, cap)
+    end
+    return t
+end
+
+
+function findPlayers(name, speaker)
+    local players = {}
+    if string.lower(name) == "all" then
+        local children = game.Players:GetChildren()
+        for i = 1, #children do
+            if isPlayer(children[i]) then
+                table.insert(players, children[i])
+            end
+        end
+    elseif string.lower(name) == "me" then
+        table.insert(players, speaker)
+    else
+        local playerList = split(name, ",")
+        for i = 1, #playerList do
+            local children = game.Players:GetChildren()
+            for l = 1, #children do
+                if isPlayer(children[i]) then
+                    if string.lower(playerList[i]) == string.lower(children[l].Name) then
+                        table.insert(players, children[l])
+                        break;
+                    end
+                end
+            end
+        end
+    end
+    return players
+end
+
+
+local gameFunctions = {
+    day = function()
+        game.Lighting:SetMinutesAfterMidnight(60 * 12)
+    end,
+    night = function()
+        game.Lighting:SetMinutesAfterMidnight(0)
+    end,
+    ambient = function(red, green, blue)
+        redNum = tonumber(red)
+        greenNum = tonumber(green)
+        blueNum = tonumber(blue)
+        if redNum == nil or blueNum == nil or greenNum == nil then
+            return
+        end
+        game.Lighting.Ambient = Color3.new(redNum/255, green/255, blue/255)
+    end,
+    brightness = function(percent)
+        percentNum = tonumber(percent)
+        if percentNum == nil then
+            return
+        end
+        game.Lighting.Brightness = percent/100
+    end,
+    timeofday = function(timeOfDay)
+        game.Lighting.TimeOfDay = timeOfDay
+    end,
+}
+
+local playerFunctions = {
+    sparkles = function(character, ...)
+        local torso = character:FindFirstChild("Torso")
+        if torso ~= nil then
+            local sparkles = Instance.new("Sparkles")
+            sparkles.Color = Color3.new(math.random(1, 255), math.random(1, 255), math.random(1, 255))
+            sparkles.Parent = torso
+        end
+    end,
+    unsparkles = function(character, ...)
+        local torso = character:FindFirstChild("Torso")
+        if torso ~= nil then
+            local c = torso:GetChildren()
+            for i2 = 1, #c do
+                if c[i2].className == "Sparkles" then
+                    c[i2]:remove()
+                end
+            end
+        end
+    end,
+    trip = function(character, ...)
+        local torso = character:FindFirstChild("Torso")
+        if torso ~= nil then
+            torso.CFrame = CFrame.new(torso.Position.x, torso.Position.y, torso.Position.z, 0, 0, 1, 0, -1, 0, 1, 0, 0)
+        end
+    end,
+    teleport = function(characterToMove, playerNameDest, ...)
+        local torsoToMove = characterToMove:FindFirstChild("Torso")
+        if torsoToMove ~= nil then
+            local players = findPlayers(playerNameDest, nil)
+            -- we only allow a single destination
+            if #players ~= 1 then
+                return
+            end
+            local torsoDest = players[1].Character:FindFirstChild("Torso")
+            torsoToMove.CFrame = torsoDest.CFrame
+        end
+    end,
+    ff = function(character, ...)
+        local ff = Instance.new("ForceField")
+        ff.Parent = character
+    end,
+    unff = function(character, ...)
+        local c = character:GetChildren()
+        for i2 = 1, #c do
+            if c[i2].className == "ForceField" then
+                c[i2]:remove()
+            end
+        end
+    end,
+    walkspeed = function(character, speed, ...)
+        local humanoid = character:FindFirstChild("Humanoid")
+        if humanoid ~= nil then
+            humanoid.WalkSpeed = speed
+        end
+    end,
+    heal = function(character, ...)
+        local humanoid = character:FindFirstChild("Humanoid")
+        if humanoid ~= nil then
+            humanoid.Health = humanoid.MaxHealth
+        end
+    end,
+    damage = function(character, damage, ...)
+        local humanoid = character:FindFirstChild("Humanoid")
+        if humanoid ~= nil then
+            humanoid.Health = humanoid.Health - damage
+        end
+    end,
+    invisible = function(character, ...)
+        local c = character:GetChildren()
+        for i = 1, #c do
+            if c[i].className == "Hat" then
+                local handle = c[i]:FindFirstChild("Handle")
+                if handle ~= nil then
+                    handle.Transparency = 1
+                end
+            end
+            if c[i].className == "Part" then
+                c[i].Transparency = 1
+                if c[i].Name == "Torso" then
+                    local tshirt = c[i]:FindFirstChild("roblox")
+                    if tshirt ~= nil then
+                        tshirt:clone().Parent = character
+                        tshirt:remove()
+                    end
+                end
+                if c[i].Name == "Head" then
+                    local face = c[i]:FindFirstChild("face")
+                    if face ~= nil then
+                        gface = face:clone()
+                        face:remove()
+                    end
+                end
+            end
+        end
+    end,
+    visible = function(character, ...)
+        local c = character:GetChildren()
+        for i = 1, #c do
+            if c[i].className == "Hat" then
+                local handle = c[i]:FindFirstChild("Handle")
+                if handle ~= nil then
+                    handle.Transparency = 0
+                end
+            end
+            if c[i].className == "Part" then
+                c[i].Transparency = 0
+                if c[i].Name == "Torso" then
+                    local tshirt = character:FindFirstChild("roblox")
+                    if tshirt ~= nil then
+                        tshirt:clone().Parent = c[i]
+                        tshirt:remove()
+                    end
+                end
+                if c[i].Name == "Head" then
+                    if gface ~= nil then
+                        local face = gface:clone()
+                        face.Parent = c[i]
+                    end
+                end
+            end
+        end
+    end,
+}
+
+
+function onChatted(msg, speaker)
+    local msgParts = split(msg, "/")
+
+    if #msgParts == 0 then
+        return
+    end
+
+    local command = msgParts[1]
+
+    local gameFunction = gameFunctions[command]
+    if gameFunction ~= nil then
+        table.remove(msgParts, 1) -- remove the command
+        gameFunction(unpack(msgParts))
+    else
+        local playerFunction = playerFunctions[command]
+        if playerFunction == nil then
+            return
+        end
+        local players = findPlayers(msgParts[2], speaker)
+        if #players == 0 then
+            print("onChatted: no players specified")
+            return
+        end
+        for i = 1, #players do
+            local player = players[i]
+            if player.Character ~= nil then
+                table.remove(msgParts, 1) -- remove the command
+                table.remove(msgParts, 1) -- remove the player list
+                playerFunction(player.Character, unpack(msgParts))
+            end
+        end
+    end
+end
+
+
+function onChildAdded(player)
+    if not isPlayer(player) then
+        return
+    end
+
+    for i = 1, #adminlist do
+        if string.lower(adminlist[i]) == string.lower(player.Name) then
+            local connection = player.Chatted:connect(function(msg)
+                onChatted(msg, player)
+            end)
+            table.insert(namelist, player.Name)
+            table.insert(variablelist, connection)
+        end
+    end
+end
+
+game.Players.ChildAdded:connect(onChildAdded)
+
+wait(2)
+
+for i, player in ipairs(game.Players:GetChildren()) do
+    onChildAdded(player)
+end
+
+--wait(3)
+--onChatted("ambient/0/255/0", nil)
+--wait(3)
+--onChatted("teleport/Player1/Player1")
+--wait(3)
+--onChatted("brightness/10", nil)
+--wait(3)
+--onChatted("brightness/70", nil)
+--wait(3)
+--onChatted("timeofday/05:00:00", nil)
+--wait(3)
+--onChatted("timeofday/06:00:00", nil)
+--wait(3)
+--onChatted("timeofday/07:00:00", nil)
+--wait(3)
+--onChatted("timeofday/08:00:00", nil)
+

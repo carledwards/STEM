@@ -1,0 +1,134 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1187\cocoasubrtf340
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Monaco;\f2\froman\fcharset0 Times-Roman;
+}
+{\colortbl;\red255\green255\blue255;\red255\green249\blue89;}
+\margl1440\margr1440\vieww21680\viewh15220\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs36 \cf0 \
+
+\b\fs48 Roblox Lesson #1 - Teleport\
+
+\b0\fs36 \
+With this lesson, we are going to build a new place and add in some code to make the person be teleported from one brick to another.\
+\
+1) Launch the Roblox Studio\
+\
+2) Create a new place:  File -> New\'85\
+\
+3) Generate the terrain by selecting the create terrain tool\
+	 
+\fs24 {{\NeXTGraphic Pasted Graphic.tiff \width560 \height640
+}¬}
+\fs36 \
+\
+This will bring up the Terrain tool, adjust your setting like the following:\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+\cf0 	
+\fs24 {{\NeXTGraphic Pasted Graphic 1.tiff \width4140 \height8920
+}¬}
+\fs36 \
+\
+4) Test the Place:  Tools -> Test -> Play Solo\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\tx7450\pardirnatural
+\cf0 \
+5) Quit the new Roblox window/instance\
+\
+6) Lets add a neutral spawn point\
+	- From the Toolbox, select the Inventory tab, select "Display: Game Stuff"\
+	- Find the Grey colored spawn point (called "Neutral Spawn Location")\
+	- Move the Spawn location to the be just on top of the ground\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+\cf0 	
+\fs24 {{\NeXTGraphic Pasted Graphic 2.tiff \width15760 \height11700
+}¬}
+\fs36 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\tx7450\pardirnatural
+\cf0 \
+7) Test out the the Place\
+\
+8) Lets create a Teleport\
+\
+	- From the Toolbox -> Inventory, select "Display: Bricks"\
+	- Select the Wooden Brick:\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+\cf0 	
+\fs24 {{\NeXTGraphic Pasted Graphic 3.tiff \width2560 \height1740
+}¬}
+\fs36 \
+\
+	- add it to the Place\
+\
+9) Add another Wooden Brick\
+\
+10) Rename the bricks in the Explorer from the names "Part" and "Part":\
+\
+	
+\fs24 {{\NeXTGraphic Pasted Graphic 4.tiff \width4560 \height800
+}¬}
+\fs36 \
+\
+	To "Start" and "Target":\
+\
+	
+\fs24 {{\NeXTGraphic Pasted Graphic 7.tiff \width2480 \height760
+}¬}
+\fs36 \
+\
+11) Your area should look something like this:\
+\
+	
+\fs24 {{\NeXTGraphic Pasted Graphic 6.tiff \width6740 \height3860
+}¬}
+\fs36 \
+\
+12) In the Explorer, be sure the "Start" object is highlighted.  Under the Basic Objects window, find the "Script" object:\
+\
+	
+\fs24 {{\NeXTGraphic Pasted Graphic 8.tiff \width4300 \height2940
+}¬}
+\fs36 \
+\
+13) Double click the "Script" object.  It should have added a Script object to your Start object:\
+\
+	
+\fs24 {{\NeXTGraphic Pasted Graphic 9.tiff \width3300 \height1120
+}¬}
+\fs36 \
+\
+14) A script will show up in your editor and it will look something like this:\
+\
+	
+\fs24 {{\NeXTGraphic Pasted Graphic 10.tiff \width12260 \height1600
+}¬}
+\fs36 \
+\
+15) Add the follow code to your script:\
+\
+\pard\pardeftab720
+
+\f1 \cf0 \cb2 local Tel1 = script.Parent -- Our Parenting Part \
+local Tel2 = script.Parent.Parent.Target\
+\
+function onTouch( Brick) -- Starts the function that sends us Brick, the object that triggers the function \
+	local Player = Brick.Parent:findFirstChild("Humanoid") -- Finds Humanoid in Brick\
+	print ("hello carlos amigos")\
+	if (Player ~= nil) then -- Checks if Player is a real Player   \
+		Player.Parent.Torso.CFrame = CFrame.new( Tel2.Position + Vector3.new( 0, 3, 0))\
+	end \
+end \
+\cb1 \
+Tel1.Touched:connect(onTouch) -- Connect the function to a touched event\
+
+\f2 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+
+\f0 \cf0 16) Test out the place\
+\
+17) Try changing the values inside of the "Vector.new(0, 3, 0)" code\
+\
+}

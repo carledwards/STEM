@@ -1,0 +1,13 @@
+local Tel1 = script.Parent -- Our Parenting Part 
+local Tel2 = script.Parent.Parent.Target
+
+function onTouch( Brick) -- Starts the function that sends us Brick, the object that triggers the function 
+	local Player = Brick.Parent:findFirstChild("Humanoid") -- Finds Humanoid in Brick
+	print ("hello carlos amigos")
+	if (Player ~= nil) then -- Checks if Player is a real Player   
+		Player.Parent.Torso.CFrame = CFrame.new( Tel2.Position + Vector3.new( 0, 3, 0))
+	end 
+end 
+
+Tel1.Touched:connect(onTouch) -- Connect the function to a touched event
+
